@@ -29,6 +29,305 @@ python module snoptc__user__routines
                 double precision intent(in) :: ru(lenru)
                 integer intent(in) :: lenru
 	    end subroutine userfg
+     !mham-neil: | -------> ADD
+        !      subroutine snstop(iabort,ktcond,mjrprtlvl,minimize,m,maxs,n,nb,nncon0,nncon,nnobj0,nnobj,ns,itn,nmajor,nminor,nswap,condzhz,iobj,scaleobj,objadd,fobj,fmerit,penparm,step,primalinf,dualinf,maxvi,maxvirel,hs,nej,nlocj,locj,indj,jcol,negcon,scales,bl,bu,fx,fcon,gcon,gobj,ycon,pi,rc,rg,x,cu,lencu,iu,leniu,ru,lenru,cw,lencw,iw,leniw,rw,lenrw) ! in test.f
+        !     integer, intent(out) :: iabort
+        !     logical dimension(2) :: ktcond
+        !     integer :: mjrprtlvl
+        !     integer :: minimize
+        !     integer, optional,check(len(pi)>=m),depend(pi) :: m=len(pi)
+        !     integer, optional,check(len(rg)>=maxs),depend(rg) :: maxs=len(rg)
+        !     integer :: n
+        !     integer, optional,check(len(hs)>=nb),depend(hs) :: nb=len(hs)
+        !     integer, optional,check(len(fx)>=nncon0),depend(fx) :: nncon0=len(fx)
+        !     integer :: nncon
+        !     integer, optional,check(len(gobj)>=nnobj0),depend(gobj) :: nnobj0=len(gobj)
+        !     integer :: nnobj
+        !     integer :: ns
+        !     integer :: itn
+        !     integer :: nmajor
+        !     integer :: nminor
+        !     integer :: nswap
+        !     double precision :: condzhz
+        !     integer :: iobj
+        !     double precision :: scaleobj
+        !     double precision :: objadd
+        !     double precision :: fobj
+        !     double precision :: fmerit
+        !     double precision dimension(4) :: penparm
+        !     double precision :: step
+        !     double precision :: primalinf
+        !     double precision :: dualinf
+        !     double precision :: maxvi
+        !     double precision :: maxvirel
+        !     integer dimension(nb) :: hs
+        !     integer, optional,check(len(indj)>=nej),depend(indj) :: nej=len(indj)
+        !     integer, optional,check(len(locj)>=nlocj),depend(locj) :: nlocj=len(locj)
+        !     integer dimension(nlocj) :: locj
+        !     integer dimension(nej) :: indj
+        !     double precision dimension(nej),depend(nej) :: jcol
+        !     integer, optional,check(len(gcon)>=negcon),depend(gcon) :: negcon=len(gcon)
+        !     double precision dimension(nb),depend(nb) :: scales
+        !     double precision dimension(nb),depend(nb) :: bl
+        !     double precision dimension(nb),depend(nb) :: bu
+        !     double precision dimension(nncon0) :: fx
+        !     double precision dimension(nncon0),depend(nncon0) :: fcon
+        !     double precision dimension(negcon) :: gcon
+        !     double precision dimension(nnobj0) :: gobj
+        !     double precision dimension(nncon0),depend(nncon0) :: ycon
+        !     double precision dimension(m) :: pi
+        !     double precision dimension(nb),depend(nb) :: rc
+        !     double precision dimension(maxs) :: rg
+        !     double precision dimension(nb),depend(nb) :: x
+        !     character dimension(lencu,8) :: cu
+        !     integer, optional,check(shape(cu,0)==lencu),depend(cu) :: lencu=shape(cu,0)
+        !     integer dimension(leniu) :: iu
+        !     integer, optional,check(len(iu)>=leniu),depend(iu) :: leniu=len(iu)
+        !     double precision dimension(lenru) :: ru
+        !     integer, optional,check(len(ru)>=lenru),depend(ru) :: lenru=len(ru)
+        !     character dimension(lencw,8) :: cw
+        !     integer, optional,check(shape(cw,0)==lencw),depend(cw) :: lencw=shape(cw,0)
+        !     integer dimension(leniw) :: iw
+        !     integer, optional,check(len(iw)>=leniw),depend(iw) :: leniw=len(iw)
+        !     double precision dimension(lenrw) :: rw
+        !     integer, optional,check(len(rw)>=lenrw),depend(rw) :: lenrw=len(rw)
+        ! end subroutine snstop
+     ! mham-note: overruled! We must make it compatible with SNOPT v7.2-10 Fortran77 instead:
+     ! mham-insert: copy-paste from sn02lib.f instead to make sure interface matches
+             subroutine snstop(iabort,info,htype,ktcond,mjrprt,minimz,m,maxs,n,nb,nncon0,nncon,nnobj0,nnobj,ns,itn,nmajor,nminor,nswap,condhz,iobj,sclobj,objadd,fmrt,pennrm,step,prinf,duinf,vimax,virel,hs,ne,nlocj,locj,indj,jcol,negcon,ascale,bl,bu,fcon,gcon,gobj,ycon,pi,rc,rg,x,cu,lencu,iu,leniu,ru,lenru,cw,lencw,iw,leniw,rw,lenrw) ! in test.f
+            integer, intent(out) :: iabort !iabort
+            integer dimension(6) :: info ! mham-insert!
+            integer :: htype ! mham-insert
+            logical dimension(2) :: ktcond !ktcond
+            integer :: mjrprt
+            integer :: minimz ! mham-insert
+            !integer :: !mjrprtlvl
+            !integer :: !minimize
+            integer, optional,check(len(pi)>=m),depend(pi) :: m=len(pi)
+            integer, optional,check(len(rg)>=maxs),depend(rg) :: maxs=len(rg)
+            integer :: n !n
+            integer, optional,check(len(hs)>=nb),depend(hs) :: nb=len(hs)
+            !integer, optional,check(len(fx)>=nncon0),depend(fx) :: nncon0=len(fx)
+            !mham-change: fx does not exist. Pick 'fcon' (see l. 1683 in sn02lib.f and compare .f files
+            !to UMich code
+            integer, optional,check(len(fcon)>=nncon0),depend(fcon) :: nncon0=len(fcon)
+            integer :: nncon !nncon
+            integer, optional,check(len(gobj)>=nnobj0),depend(gobj) :: nnobj0=len(gobj)
+            integer :: nnobj !nnobj
+            integer :: ns !ns
+            integer :: itn !itn
+            integer :: nmajor !nmajor
+            integer :: nminor !nminor
+            integer :: nswap !nswap
+            double precision :: condhz ! mham-insert!
+            !double precision :: !condzhz
+            integer :: iobj !iobj
+            double precision :: sclobj ! mham-insert
+            !double precision :: !scaleobj
+            double precision :: objadd !objadd
+            double precision :: fmrt ! mham-insert
+            double precision :: pennrm ! mham-insert
+            !double precision :: !fobj
+            !double precision :: !fmerit
+            !double precision dimension(4) :: !penparm
+            double precision :: step !step
+            double precision :: prinf !mham-insert
+            !double precision :: !primalinf
+            double precision :: duinf !dualinf
+            double precision :: vimax !maxvi
+            double precision :: virel !maxvirel
+            integer dimension(nb) :: hs !hs
+            ! ne mham-name change!!!!
+            !integer, optional,check(len(indj)>=nej),depend(indj) :: nej=len(indj)
+            integer, optional,check(len(indj)>=ne),depend(indj) :: ne=len(indj)
+            integer, optional,check(len(locj)>=nlocj),depend(locj) :: nlocj=len(locj)
+            integer dimension(nlocj) :: locj !locj
+            ! mham-name change!!!
+            !integer dimension(nej) :: !indj
+            integer dimension(ne) :: indj
+            ! mham-name change!
+            !double precision dimension(nej),depend(nej) :: !jcol
+            double precision dimension(ne),depend(ne) :: jcol !jcol
+            integer, optional,check(len(gcon)>=negcon),depend(gcon) :: negcon=len(gcon)
+            double precision dimension(nb),depend(nb) :: ascale !scales
+            double precision dimension(nb),depend(nb) :: bl !bl
+            double precision dimension(nb),depend(nb) :: bu !bu
+            !double precision dimension(nncon0) :: !fx
+            !double precision dimension(nncon0),depend(nncon0) :: fcon !fcon
+            ! mham-note: removing dependency
+            double precision dimension(nncon0) :: fcon !fcon
+            double precision dimension(negcon) :: gcon !gcon
+            double precision dimension(nnobj0) :: gobj !gobj
+            double precision dimension(nncon0),depend(nncon0) :: ycon !ycon
+            double precision dimension(m) :: pi !pi
+            double precision dimension(nb),depend(nb) :: rc !rc
+            double precision dimension(maxs) :: rg !rg
+            double precision dimension(nb),depend(nb) :: x !x
+            character dimension(lencu,8) :: cu !cu
+            integer, optional,check(shape(cu,0)==lencu),depend(cu) :: lencu=shape(cu,0)
+            integer dimension(leniu) :: iu !iu
+            integer, optional,check(len(iu)>=leniu),depend(iu) :: leniu=len(iu)
+            double precision dimension(lenru) :: ru !ru
+            integer, optional,check(len(ru)>=lenru),depend(ru) :: lenru=len(ru)
+            character dimension(lencw,8) :: cw !cw
+            integer, optional,check(shape(cw,0)==lencw),depend(cw) :: lencw=shape(cw,0)
+            integer dimension(leniw) :: iw !iw
+            integer, optional,check(len(iw)>=leniw),depend(iw) :: leniw=len(iw)
+            double precision dimension(lenrw) :: rw !rw
+            integer, optional,check(len(rw)>=lenrw),depend(rw) :: lenrw=len(rw)
+        end subroutine snstop
+     ! mham-note: overruled! We must make it compatible with SNOPT v7.2-10 Fortran77 instead:
+     ! mham-insert: copy-paste instead to make sure interface matches
+        subroutine snlog(iabort,info,htype,ktcond,mjrprt,minimz,n,nb,nncon0,ns,itn,nmajor,nminor,nswap,condhz,iobj,sclobj,objadd,fmrt,pennrm,step,prinf,duinf,vimax,virel,hs,ne,nlocj,locj,indj,jcol,ascale,bl,bu,fcon,ycon,x,cu,lencu,iu,leniu,ru,lenru,cw,lencw,iw,leniw,rw,lenrw) ! in test.f
+            integer :: iabort !iabort
+            integer dimension(6) :: info ! mham-insert
+            integer :: htype ! mham-insert
+            logical dimension(2) :: ktcond !ktcond
+            integer :: mjrprt !mjrprtlvl
+            integer :: minimz !minimize
+            integer :: n !n
+            integer, optional,check(len(hs)>=nb),depend(hs) :: nb=len(hs)
+            ! mham-note: fx does not exist
+            !            integer, optional,check(len(fx)>=nncon0),depend(fx) :: nncon0=len(fx)
+            integer, optional,check(len(fcon)>=nncon0),depend(fcon) :: nncon0=len(fcon)
+            integer :: !nnobj
+            integer :: ns !ns
+            integer :: itn !itn
+            integer :: nmajor !nmajor
+            integer :: nminor !nminor
+            integer :: nswap !nswap
+            double precision :: condhz !condzhz
+            integer :: iobj !iobj
+            double precision :: sclobj !scaleobj
+            double precision :: objadd !objadd
+            double precision ::  !fobj
+            double precision :: pennrm
+            double precision :: fmrt !fmerit
+            !double precision dimension(4) :: penparm
+            double precision :: step !step
+            double precision :: prinf !primalinf
+            double precision :: duinf !dualinf
+            double precision :: vimax !maxvi
+            double precision :: virel !maxvirel
+            integer dimension(nb) :: hs
+            ! mham-insert: name change nej->ne
+            !integer, optional,check(len(indj)>=nej),depend(indj) :: nej=len(indj)
+            integer, optional,check(len(indj)>=ne),depend(indj) :: ne=len(indj)
+            integer, optional,check(len(locj)>=nlocj),depend(locj) :: nlocj=len(locj)
+            integer dimension(nlocj) :: locj
+            !integer dimension(nej) :: indj
+            integer dimension(ne) :: indj
+            !double precision dimension(nej),depend(nej) :: jcol !jcol
+            double precision dimension(ne),depend(ne) :: jcol !jcol
+            double precision dimension(nb),depend(nb) :: ascale !scales
+            double precision dimension(nb),depend(nb) :: bl !bl
+            double precision dimension(nb),depend(nb) :: bu !bu
+            !double precision dimension(nncon0) :: !fx
+            double precision dimension(nncon0),depend(nncon0) :: fcon !fcon
+            double precision dimension(nncon0),depend(nncon0) :: ycon !ycon
+            double precision dimension(nb),depend(nb) :: x !x
+            character dimension(lencu,8) :: cu !cu
+            integer, optional,check(shape(cu,0)==lencu),depend(cu) :: lencu=shape(cu,0)
+            integer dimension(leniu) :: iu !iu
+            integer, optional,check(len(iu)>=leniu),depend(iu) :: leniu=len(iu)
+            double precision dimension(lenru) :: ru !ru
+            integer, optional,check(len(ru)>=lenru),depend(ru) :: lenru=len(ru)
+            character dimension(lencw,8) :: cw !cw
+            integer, optional,check(shape(cw,0)==lencw),depend(cw) :: lencw=shape(cw,0)
+            integer dimension(leniw) :: iw !iw
+            integer, optional,check(len(iw)>=leniw),depend(iw) :: leniw=len(iw)
+            double precision dimension(lenrw) :: rw !rw
+            integer, optional,check(len(rw)>=lenrw),depend(rw) :: lenrw=len(rw)
+        end subroutine snlog
+        ! subroutine snlog2(probtype,probtag,elastic,gotr,firstfeas,feasible,justphase1,m,mbs,nnh,ns,jsq,jbr,jsr,linesp,liness,itn,itqp,kprc,lvlobje,pivot,step,ninf,sinf,ninfe,sinfe,wtinf,nonopt,objprt,condzhz,djqprt,rgnorm,kbs,xbs,iw,leniw) ! in test.f
+        ! mham-note: overruled! We must make it compatible with SNOPT v7.2-10 Fortran77 instead:
+        ! mham-note: too much change.. will try copy-pasting the fortran bits instead...
+        ! mham-note: here is my copy-paste attempt
+        subroutine snlog2(prob,probtag,elastc,gotr,jstfea,feasbl,m,mbs,nnh,ns,jsq,jbr,jsr,linesp,liness,itn,itqp,kprc,lvlinf,pivot,step,ninf,sinf,wtinf,objprt,condhz,djqprt,rgnorm,kbs,xbs,iw,leniw) ! in test.f
+            integer :: prob !probtype
+            character*20 :: probtag !probtag
+            logical :: elastc !elastic
+            logical :: gotr !gotr
+            logical :: jstfea !firstfeas
+            logical :: feasbl !feasible
+            !!!logical :: !justphase1
+            integer :: m !m
+            integer, optional,check(len(kbs)>=mbs),depend(kbs) :: mbs=len(kbs)
+            integer :: nnh !nnh
+            integer :: ns !ns
+            integer :: jsq !jsq
+            integer :: jbr !jbr
+            integer :: jsr !jsr
+            integer :: linesp !linesp
+            integer :: liness !liness
+            integer :: itn !itn
+            integer :: itqp !itqp
+            integer :: kprc !kprc
+            integer :: lvlinf ! mham-insert!
+            !!!integer :: !lvlobje
+            double precision :: pivot !pivot
+            double precision :: step !step
+            integer :: ninf !ninf
+            double precision :: sinf !sinf
+            !!!integer :: !ninfe
+            !!!double precision :: !sinfe
+            double precision :: wtinf !wtinf
+            !!!integer :: !nonopt
+            double precision :: objprt !objprt
+            double precision :: condhz ! mham-insert
+            !!!double precision :: !condzhz
+            double precision :: djqprt !djqprt
+            double precision :: rgnorm !rgnorm
+            integer dimension(mbs) :: kbs !kbs
+            double precision dimension(mbs),depend(mbs) :: xbs !xbs
+            integer dimension(leniw) :: iw !iw
+            integer, optional,check(len(iw)>=leniw),depend(iw) :: leniw=len(iw)
+        end subroutine snlog2
+        ! subroutine sqlog(probtype,probtag,elastic,gotr,firstfeas,feasible,justphase1,m,mbs,nnh,ns,jsq,jbr,jsr,linesp,liness,itn,itqp,kprc,lvlobje,pivot,step,ninf,sinf,ninfe,sinfe,wtinf,nonopt,objprt,condzhz,djqprt,rgnorm,kbs,xbs,iw,leniw) ! in test.f
+        ! mham-note: overruled! We must make it compatible with SNOPT v7.2-10 Fortran77 instead:
+        ! mham-note: trying copy-paste. Too big diff.
+        subroutine sqlog(prob,probtag,elastc,gotr,jstfea,feasbl,m,mbs,nnh,ns,jsq,jbr,jsr,linesp,liness,itn,itqp,kprc,lvlinf,pivot,step,ninf,sinf,wtinf,objprt,condhz,djqprt,rgnorm,kbs,xbs,iw,leniw) ! in test.f
+            integer :: prob !probtype
+            character*20 :: probtag !probtag
+            logical :: elastc !elastic
+            logical :: gotr !gotr
+            logical :: jstfea ! mham-insert!
+            !logical :: !firstfeas
+            logical :: feasbl !feasible
+            !logical :: !justphase1
+            integer :: m !m
+            integer, optional,check(len(kbs)>=mbs),depend(kbs) :: mbs=len(kbs)
+            integer :: nnh !nnh
+            integer :: ns !ns
+            integer :: jsq !jsq
+            integer :: jbr !jbr
+            integer :: jsr !jsr
+            integer :: linesp !linesp
+            integer :: liness !liness
+            integer :: itn !itn
+            integer :: itqp !itqp
+            integer :: kprc !kprc
+            integer :: lvlinf ! mham-insert!
+            !integer :: !lvlobje
+            double precision :: pivot !pivot
+            double precision :: step !step
+            integer :: ninf !ninf
+            double precision :: sinf !sinf
+            !integer :: !ninfe
+            !double precision :: !sinfe
+            double precision :: wtinf !wtinf
+            !integer :: !nonopt
+            double precision :: objprt !objprt
+            double precision :: condhz !mham-insert!
+            !double precision :: !condzhz
+            double precision :: djqprt !djqprt
+            double precision :: rgnorm !rgnorm
+            integer dimension(mbs) :: kbs !kbs
+            double precision dimension(mbs),depend(mbs) :: xbs !xbs
+            integer dimension(leniw) :: iw !iw
+            integer, optional,check(len(iw)>=leniw),depend(iw) :: leniw=len(iw)
+        end subroutine sqlog
+     !mham-neil: | -------> stop ADD -------> |
     end interface snoptc_user_interface
 end python module snoptc__user__routines
 python module snopt ! in 
@@ -203,6 +502,336 @@ python module snopt ! in
             double precision dimension(lenrw) :: rw
             integer optional,check(len(rw)>=lenrw),depend(rw) :: lenrw=len(rw)
         end subroutine snoptc
+        ! mham-neil: | -------> ADD 
+        ! subroutine snkerc(start,m,n,ne,nname,nncon,nnobj,nnjac,iobj,objadd,prob,userfg,snlog,snlog2,sqlog,snstop,jcol,indj,locj,bl,bu,names,hs,x,pi,rc,inform,mincw,miniw,minrw,ns,ninf,sinf,obj,cu,lencu,iu,leniu,ru,lenru,cw,lencw,iw,leniw,rw,lenrw) ! in :snopt:snoptc.f
+        ! mham-note: overruled! We must make it compatible with SNOPT v7.2-10 Fortran77 instead:
+        ! mham-insert: copy-paste instead to make sure interface matches
+        subroutine snkerc(start,m,n,ne,nname,nncon,nnobj,nnjac,iobj,objadd,prob,userfg,snlog,snlog2,sqlog,snstop,jcol,indj,locj,bl,bu,names,hs,x,pi,rc,info,mincw,miniw,minrw,ns,ninf,sinf,obj,cu,lencu,iu,leniu,ru,lenru,cw,lencw,iw,leniw,rw,lenrw)! in :snopt:snoptc.f          
+            use snoptc__user__routines
+            character*(*) intent(inout) :: start ! start
+            integer optional,check(len(pi)>=m),depend(pi) :: m=len(pi)
+            integer optional,check((len(locj)-1)>=n),depend(locj) :: n=(len(locj)-1)
+            integer optional,check(len(jcol)>=ne),depend(jcol) :: ne=len(jcol)
+            integer :: nncon ! nncon 
+            integer :: nnobj ! nnobj
+            integer :: nnjac ! nnjac
+            integer :: iobj ! iobj
+            double precision :: objadd ! objadd
+            character*8 :: prob ! prob
+            !external userfun,snlog,snlog2,sqlog,snstop
+            ! external userfg,snlog,snlog2,sqlog,snstop
+            external userfg,snlog,snlog2,sqlog,snstop
+            double precision dimension(ne) :: jcol ! jcol
+            integer intent(inout), dimension(ne),depend(ne) :: indj ! indj
+            integer intent(inout), dimension(n + 1) :: locj ! locj
+            double precision intent(inout), dimension(n+m),depend(m,n) :: bl ! bl
+            double precision intent(inout), dimension(n+m),depend(m,n) :: bu ! bu
+            character*8 intent(in), dimension(nname) :: names ! names
+            integer optional,check(len(names)==nname),depend(names) :: nname=len(names)
+            integer intent(inout), dimension(n+m),depend(m,n) :: hs ! hs
+            double precision intent(inout), dimension(n+m),depend(m,n) :: x ! x
+            double precision intent(inout), dimension(m) :: pi ! pi
+            double precision intent(inout), dimension(n+m),depend(m,n) :: rc ! rc 
+            integer intent(inout) :: info ! inform
+            ! integer intent(inout) :: inform
+            integer intent(inout) :: mincw ! mincw
+            integer intent(inout) :: miniw ! miniw
+            integer intent(inout) :: minrw ! minrw
+            integer :: ns ! ns
+            integer :: ninf ! ninf
+            double precision :: sinf ! sinf
+            double precision intent(inout) :: obj ! obj
+            character*8 intent(in,out), dimension(lencu) :: cu ! cu
+            integer optional,check(len(cu)==lencu),depend(cu) :: lencu=len(cu)
+            integer dimension(leniu) :: iu ! iu
+            integer optional,check(len(iu)>=leniu),depend(iu) :: leniu=len(iu)
+            double precision dimension(lenru) :: ru ! ru
+            integer optional,check(len(ru)>=lenru),depend(ru) :: lenru=len(ru)
+            character*8 intent(in,out), dimension(lencw) :: cw
+            integer optional,check(len(cw)==lencw),depend(cw) :: lencw=len(cw)
+            integer intent(inout), dimension(leniw) :: iw
+            integer optional,check(len(iw)>=leniw),depend(iw) :: leniw=len(iw)
+            double precision dimension(lenrw) :: rw
+            integer optional,check(len(rw)>=lenrw),depend(rw) :: lenrw=len(rw)
+        end subroutine snkerc
+        ! subroutine snlog(iabort,ktcond,mjrprtlvl,minimize,n,nb,nncon0,nnobj,ns,itn,nmajor,nminor,nswap,condzhz,iobj,scaleobj,objadd,fobj,fmerit,penparm,step,primalinf,dualinf,maxvi,maxvirel,hs,nej,nlocj,locj,indj,jcol,scales,bl,bu,fx,fcon,ycon,x,cu,lencu,iu,leniu,ru,lenru,cw,lencw,iw,leniw,rw,lenrw) ! in test.f
+        !     integer :: iabort
+        !     logical dimension(2) :: ktcond
+        !     integer :: mjrprtlvl
+        !     integer :: minimize
+        !     integer :: n
+        !     integer, optional,check(len(hs)>=nb),depend(hs) :: nb=len(hs)
+        !     integer, optional,check(len(fx)>=nncon0),depend(fx) :: nncon0=len(fx)
+        !     integer :: nnobj
+        !     integer :: ns
+        !     integer :: itn
+        !     integer :: nmajor
+        !     integer :: nminor
+        !     integer :: nswap
+        !     double precision :: condzhz
+        !     integer :: iobj
+        !     double precision :: scaleobj
+        !     double precision :: objadd
+        !     double precision :: fobj
+        !     double precision :: fmerit
+        !     double precision dimension(4) :: penparm
+        !     double precision :: step
+        !     double precision :: primalinf
+        !     double precision :: dualinf
+        !     double precision :: maxvi
+        !     double precision :: maxvirel
+        !     integer dimension(nb) :: hs
+        !     integer, optional,check(len(indj)>=nej),depend(indj) :: nej=len(indj)
+        !     integer, optional,check(len(locj)>=nlocj),depend(locj) :: nlocj=len(locj)
+        !     integer dimension(nlocj) :: locj
+        !     integer dimension(nej) :: indj
+        !     double precision dimension(nej),depend(nej) :: jcol
+        !     double precision dimension(nb),depend(nb) :: scales
+        !     double precision dimension(nb),depend(nb) :: bl
+        !     double precision dimension(nb),depend(nb) :: bu
+        !     double precision dimension(nncon0) :: fx
+        !     double precision dimension(nncon0),depend(nncon0) :: fcon
+        !     double precision dimension(nncon0),depend(nncon0) :: ycon
+        !     double precision dimension(nb),depend(nb) :: x
+        !     character dimension(lencu,8) :: cu
+        !     integer, optional,check(shape(cu,0)==lencu),depend(cu) :: lencu=shape(cu,0)
+        !     integer dimension(leniu) :: iu
+        !     integer, optional,check(len(iu)>=leniu),depend(iu) :: leniu=len(iu)
+        !     double precision dimension(lenru) :: ru
+        !     integer, optional,check(len(ru)>=lenru),depend(ru) :: lenru=len(ru)
+        !     character dimension(lencw,8) :: cw
+        !     integer, optional,check(shape(cw,0)==lencw),depend(cw) :: lencw=shape(cw,0)
+        !     integer dimension(leniw) :: iw
+        !     integer, optional,check(len(iw)>=leniw),depend(iw) :: leniw=len(iw)
+        !     double precision dimension(lenrw) :: rw
+        !     integer, optional,check(len(rw)>=lenrw),depend(rw) :: lenrw=len(rw)
+        ! end subroutine snlog
+        !
+        ! mham-note: overruled! We must make it compatible with SNOPT v7.2-10 Fortran77 instead:
+        ! mham-insert: copy-paste instead to make sure interface matches
+        subroutine snlog(iabort,info,htype,ktcond,mjrprt,minimz,n,nb,nncon0,ns,itn,nmajor,nminor,nswap,condhz,iobj,sclobj,objadd,fmrt,pennrm,step,prinf,duinf,vimax,virel,hs,ne,nlocj,locj,indj,jcol,ascale,bl,bu,fcon,ycon,x,cu,lencu,iu,leniu,ru,lenru,cw,lencw,iw,leniw,rw,lenrw) ! in test.f
+            integer :: iabort !iabort
+            integer dimension(6) :: info ! mham-insert
+            integer :: htype ! mham-insert
+            logical dimension(2) :: ktcond !ktcond
+            integer :: mjrprt !mjrprtlvl
+            integer :: minimz !minimize
+            integer :: n !n
+            integer, optional,check(len(hs)>=nb),depend(hs) :: nb=len(hs)
+            ! mham-note: fx does not exist
+            !            integer, optional,check(len(fx)>=nncon0),depend(fx) :: nncon0=len(fx)
+            integer, optional,check(len(fcon)>=nncon0),depend(fcon) :: nncon0=len(fcon)
+            integer :: !nnobj
+            integer :: ns !ns
+            integer :: itn !itn
+            integer :: nmajor !nmajor
+            integer :: nminor !nminor
+            integer :: nswap !nswap
+            double precision :: condhz !condzhz
+            integer :: iobj !iobj
+            double precision :: sclobj !scaleobj
+            double precision :: objadd !objadd
+            double precision ::  !fobj
+            double precision :: pennrm
+            double precision :: fmrt !fmerit
+            !double precision dimension(4) :: penparm
+            double precision :: step !step
+            double precision :: prinf !primalinf
+            double precision :: duinf !dualinf
+            double precision :: vimax !maxvi
+            double precision :: virel !maxvirel
+            integer dimension(nb) :: hs
+            ! mham-insert: name change nej->ne
+            !integer, optional,check(len(indj)>=nej),depend(indj) :: nej=len(indj)
+            integer, optional,check(len(indj)>=ne),depend(indj) :: ne=len(indj)
+            integer, optional,check(len(locj)>=nlocj),depend(locj) :: nlocj=len(locj)
+            integer dimension(nlocj) :: locj
+            integer dimension(ne) :: indj
+            double precision dimension(ne),depend(ne) :: jcol !jcol
+            double precision dimension(nb),depend(nb) :: ascale !scales
+            double precision dimension(nb),depend(nb) :: bl !bl
+            double precision dimension(nb),depend(nb) :: bu !bu
+            !double precision dimension(nncon0) :: !fx
+            double precision dimension(nncon0),depend(nncon0) :: fcon !fcon
+            double precision dimension(nncon0),depend(nncon0) :: ycon !ycon
+            double precision dimension(nb),depend(nb) :: x !x
+            character dimension(lencu,8) :: cu !cu
+            integer, optional,check(shape(cu,0)==lencu),depend(cu) :: lencu=shape(cu,0)
+            integer dimension(leniu) :: iu !iu
+            integer, optional,check(len(iu)>=leniu),depend(iu) :: leniu=len(iu)
+            double precision dimension(lenru) :: ru !ru
+            integer, optional,check(len(ru)>=lenru),depend(ru) :: lenru=len(ru)
+            character dimension(lencw,8) :: cw !cw
+            integer, optional,check(shape(cw,0)==lencw),depend(cw) :: lencw=shape(cw,0)
+            integer dimension(leniw) :: iw !iw
+            integer, optional,check(len(iw)>=leniw),depend(iw) :: leniw=len(iw)
+            double precision dimension(lenrw) :: rw !rw
+            integer, optional,check(len(rw)>=lenrw),depend(rw) :: lenrw=len(rw)
+        end subroutine snlog
+        !subroutine snlog2(probtype,probtag,elastic,gotr,firstfeas,feasible,justphase1,m,mbs,nnh,ns,jsq,jbr,jsr,linesp,liness,itn,itqp,kprc,lvlobje,pivot,step,ninf,sinf,ninfe,sinfe,wtinf,nonopt,objprt,condzhz,djqprt,rgnorm,kbs,xbs,iw,leniw) ! in test.f
+        !     integer :: probtype
+        !     character*20 :: probtag
+        !     logical :: elastic
+        !     logical :: gotr
+        !     logical :: firstfeas
+        !     logical :: feasible
+        !     logical :: justphase1
+        !     integer :: m
+        !     integer, optional,check(len(kbs)>=mbs),depend(kbs) :: mbs=len(kbs)
+        !     integer :: nnh
+        !     integer :: ns
+        !     integer :: jsq
+        !     integer :: jbr
+        !     integer :: jsr
+        !     integer :: linesp
+        !     integer :: liness
+        !     integer :: itn
+        !     integer :: itqp
+        !     integer :: kprc
+        !     integer :: lvlobje
+        !     double precision :: pivot
+        !     double precision :: step
+        !     integer :: ninf
+        !     double precision :: sinf
+        !     integer :: ninfe
+        !     double precision :: sinfe
+        !     double precision :: wtinf
+        !     integer :: nonopt
+        !     double precision :: objprt
+        !     double precision :: condzhz
+        !     double precision :: djqprt
+        !     double precision :: rgnorm
+        !     integer dimension(mbs) :: kbs
+        !     double precision dimension(mbs),depend(mbs) :: xbs
+        !     integer dimension(leniw) :: iw
+        !     integer, optional,check(len(iw)>=leniw),depend(iw) :: leniw=len(iw)
+        ! end subroutine snlog2
+        !
+        ! mham-note: overruled! We must make it compatible with SNOPT v7.2-10 Fortran77 instead:       
+        ! mham-insert: copy-paste instead to make sure interface matches
+        subroutine snlog2(prob,probtag,elastc,gotr,jstfea,feasbl,m,mbs,nnh,ns,jsq,jbr,jsr,linesp,liness,itn,itqp,kprc,lvlinf,pivot,step,ninf,sinf,wtinf,objprt,condhz,djqprt,rgnorm,kbs,xbs,iw,leniw) ! in test.f
+            integer :: prob !probtype
+            character*20 :: probtag !probtag
+            logical :: elastc !elastic
+            logical :: gotr !gotr
+            logical :: jstfea !firstfeas
+            logical :: feasbl !feasible
+            !!!logical :: !justphase1
+            integer :: m !m
+            integer, optional,check(len(kbs)>=mbs),depend(kbs) :: mbs=len(kbs)
+            integer :: nnh !nnh
+            integer :: ns !ns
+            integer :: jsq !jsq
+            integer :: jbr !jbr
+            integer :: jsr !jsr
+            integer :: linesp !linesp
+            integer :: liness !liness
+            integer :: itn !itn
+            integer :: itqp !itqp
+            integer :: kprc !kprc
+            integer :: lvlinf ! mham-insert!
+            !!!integer :: !lvlobje
+            double precision :: pivot !pivot
+            double precision :: step !step
+            integer :: ninf !ninf
+            double precision :: sinf !sinf
+            !!!integer :: !ninfe
+            !!!double precision :: !sinfe
+            double precision :: wtinf !wtinf
+            !!!integer :: !nonopt
+            double precision :: objprt !objprt
+            double precision :: condhz ! mham-insert
+            !!!double precision :: !condzhz
+            double precision :: djqprt !djqprt
+            double precision :: rgnorm !rgnorm
+            integer dimension(mbs) :: kbs !kbs
+            double precision dimension(mbs),depend(mbs) :: xbs !xbs
+            integer dimension(leniw) :: iw !iw
+            integer, optional,check(len(iw)>=leniw),depend(iw) :: leniw=len(iw)
+        end subroutine snlog2
+        !subroutine sqlog(probtype,probtag,elastic,gotr,firstfeas,feasible,justphase1,m,mbs,nnh,ns,jsq,jbr,jsr,linesp,liness,itn,itqp,kprc,lvlobje,pivot,step,ninf,sinf,ninfe,sinfe,wtinf,nonopt,objprt,condzhz,djqprt,rgnorm,kbs,xbs,iw,leniw) ! in test.f
+        !     integer :: probtype
+        !     character*20 :: probtag
+        !     logical :: elastic
+        !     logical :: gotr
+        !     logical :: firstfeas
+        !     logical :: feasible
+        !     logical :: justphase1
+        !     integer :: m
+        !     integer, optional,check(len(kbs)>=mbs),depend(kbs) :: mbs=len(kbs)
+        !     integer :: nnh
+        !     integer :: ns
+        !     integer :: jsq
+        !     integer :: jbr
+        !     integer :: jsr
+        !     integer :: linesp
+        !     integer :: liness
+        !     integer :: itn
+        !     integer :: itqp
+        !     integer :: kprc
+        !     integer :: lvlobje
+        !     double precision :: pivot
+        !     double precision :: step
+        !     integer :: ninf
+        !     double precision :: sinf
+        !     integer :: ninfe
+        !     double precision :: sinfe
+        !     double precision :: wtinf
+        !     integer :: nonopt
+        !     double precision :: objprt
+        !     double precision :: condzhz
+        !     double precision :: djqprt
+        !     double precision :: rgnorm
+        !     integer dimension(mbs) :: kbs
+        !     double precision dimension(mbs),depend(mbs) :: xbs
+        !     integer dimension(leniw) :: iw
+        !     integer, optional,check(len(iw)>=leniw),depend(iw) :: leniw=len(iw)
+        ! end subroutine sqlog
+        !
+        ! mham-note: overruled! We must make it compatible with SNOPT v7.2-10 Fortran77 instead:       
+        ! mham-insert: copy-paste instead to make sure interface matches
+        subroutine sqlog(prob,probtag,elastc,gotr,jstfea,feasbl,m,mbs,nnh,ns,jsq,jbr,jsr,linesp,liness,itn,itqp,kprc,lvlinf,pivot,step,ninf,sinf,wtinf,objprt,condhz,djqprt,rgnorm,kbs,xbs,iw,leniw) ! in test.f
+            integer :: prob !probtype
+            character*20 :: probtag !probtag
+            logical :: elastc !elastic
+            logical :: gotr !gotr
+            logical :: jstfea ! mham-insert!
+            !logical :: !firstfeas
+            logical :: feasbl !feasible
+            !logical :: !justphase1
+            integer :: m !m
+            integer, optional,check(len(kbs)>=mbs),depend(kbs) :: mbs=len(kbs)
+            integer :: nnh !nnh
+            integer :: ns !ns
+            integer :: jsq !jsq
+            integer :: jbr !jbr
+            integer :: jsr !jsr
+            integer :: linesp !linesp
+            integer :: liness !liness
+            integer :: itn !itn
+            integer :: itqp !itqp
+            integer :: kprc !kprc
+            integer :: lvlinf ! mham-insert!
+            !integer :: !lvlobje
+            double precision :: pivot !pivot
+            double precision :: step !step
+            integer :: ninf !ninf
+            double precision :: sinf !sinf
+            !integer :: !ninfe
+            !double precision :: !sinfe
+            double precision :: wtinf !wtinf
+            !integer :: !nonopt
+            double precision :: objprt !objprt
+            double precision :: condhz !mham-insert!
+            !double precision :: !condzhz
+            double precision :: djqprt !djqprt
+            double precision :: rgnorm !rgnorm
+            integer dimension(mbs) :: kbs !kbs
+            double precision dimension(mbs),depend(mbs) :: xbs !xbs
+            integer dimension(leniw) :: iw !iw
+            integer, optional,check(len(iw)>=leniw),depend(iw) :: leniw=len(iw)
+        end subroutine sqlog
+     !mham-neil: | -------> stop ADD -------> |
     end interface 
 end python module snopt
 
