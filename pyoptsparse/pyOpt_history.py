@@ -23,8 +23,9 @@ from __future__ import print_function
 import os
 from .pyOpt_error import Error
 from .sqlitedict.sqlitedict import SqliteDict
-# =============================================================================
-# History Class
+import numpy
+# mham-note: https://github.com/mdolab/pyoptsparse/commit/76c47cd92efc2877eadbed839452a09e5813374b
+eps = numpy.finfo(numpy.float64).eps # mham-note: should be in pyOpt_optimizer.py Class
 # =============================================================================
 class History(object):
     """
@@ -42,7 +43,7 @@ class History(object):
        closed
 
     flag : str
-        String speciying the mode. Similar to what was used in
+        String specifying the mode. Similar to what was used in
         shelve. 'n' for a new database and 'r' to read an existing one. 
        """
     def __init__(self, fileName, temp=False, flag='n'):
@@ -81,9 +82,20 @@ class History(object):
         # String key to database on disk
         key = '%d'% callCounter
 
-        self.db[key] = data
+        # self.db[key] = data # mham-neil: deprecated
+        # mham-neil: this must be added | ->
+        # if the point exists, we merely update with new data
+        if self.pointExists(callCounter):
+            oldData = self.read(callCounter)
+            oldData.update(data)
+            self.db[key] = oldData
+        else:
+            self.db[key] = data
+        # mham-neil: this must be added | -> |
+
         self.db['last'] = key
         self.db.sync()
+        self.keys = list(self.db.keys()) # mham-neil
         
     def writeData(self, key, data):
         """
@@ -91,6 +103,7 @@ class History(object):
         """
         self.db[key] = data
         self.db.commit()
+        self.keys = list(self.db.keys()) # mham-neil
 
     def pointExists(self, callCounter):
         """
@@ -120,6 +133,34 @@ class History(object):
         except KeyError:
             return None
     
+    def getCallCounter(self,x):
+            """
+            Returns the callCounter corresponding to the function evaluation at 'x',
+            returns None if the point did not match previous evaluations
+            """
+            last = int(self.db['last'])
+            callCounter = None
+            for i in range(last,0,-1):
+                key = '%d'% i
+                xuser = self.deProcessX(self.db[key]['xuser'])
+                if numpy.isclose(xuser,x,atol=eps,rtol=eps).all() and 'funcs' in self.db[key].keys():
+                    callCounter = i
+                    break
+            return callCounter
+
+    def deProcessX(self,xuser):
+        """
+        This is a much more simple version of pyOpt_history.deProcessX without error checking.
+        We traverse the OrderedDict and stack all the DVs as a single numpy array, preserving 
+        the order so that we get the correct x vector.
+        """
+        x_list = []
+        for key in xuser.keys():
+            x_list.append(xuser[key])
+        x_array = numpy.hstack(x_list)
+        return x_array
+
+
     def __del__(self):
         try:
             self.db.close()

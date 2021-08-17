@@ -156,6 +156,10 @@ class SNOPT(Optimizer):
         #SNOPT Miscellaneous Options
         'Debug level':[int,1], # (0 - Normal, 1 - for developers)
         'Timing level':[int,3], # (3 - print cpu times)
+        # mham-neil: add options
+        # pySNOPT Options
+        'Save major iteration variables':[list,['step','merit','feasibility','optimality','penalty']], # 'Hessian', 'slack', 'lambda' and 'condZHZ' are also supported
+        
         }
         informs = {
         0 : 'finished successfully',
@@ -493,10 +497,16 @@ class SNOPT(Optimizer):
 
             # The snopt c interface
             timeA = time.time()
-            snopt.snoptc(start, nnCon, nnObj, nnJac, iObj, ObjAdd, ProbNm,
-                         self._userfg_wrap, Acol, indA, locA, bl, bu,
-                         Names, hs, xs, pi, rc, inform, mincw, miniw, minrw,
-                         nS, ninf, sinf, ff, cu, iu, ru, cw, iw, rw)
+            # snopt.snoptc(start, nnCon, nnObj, nnJac, iObj, ObjAdd, ProbNm,
+            #              self._userfg_wrap, Acol, indA, locA, bl, bu,
+            #              Names, hs, xs, pi, rc, inform, mincw, miniw, minrw,
+            #              nS, ninf, sinf, ff, cu, iu, ru, cw, iw, rw)
+
+            # mham-neil: use snkerc instead. Remember to update snopt.pyf as well
+            snopt.snkerc(start, nnCon, nnObj, nnJac, iObj, ObjAdd, ProbNm,
+                         self._userfg_wrap, snopt.snlog, snopt.snlog2, snopt.sqlog, self._snstop,
+                         Acol, indA, locA, bl, bu, Names, hs, xs, pi, rc, inform,
+                         mincw, miniw, minrw, nS, ninf, sinf, ff, cu, iu, ru, cw, iw, rw)
             optTime = time.time()-timeA
 
             # Indicate solution finished
@@ -545,6 +555,13 @@ class SNOPT(Optimizer):
         All we do here is call the generic masterFunc in the baseclass
         which will take care of everything else.
         """
+        # mham-neil
+        # nState >=2 means this is the final call which is redundant
+        # here we just return without doing anything since we don't
+        # need to do any cleanup or anything
+        if nState >= 2:
+            return
+
         fail = False
         self.iu0 = iu[0]
         if mode == 0 or mode == 2:
@@ -572,6 +589,99 @@ class SNOPT(Optimizer):
                 mode = -2 # User requested termination
 
         return mode, fobj, gobj, fcon, gcon
+
+    # mham-neil: add 
+    def _getHessian(self,iw,rw):
+        """
+        This function retrieves the approximate Hessian from the SNOPT workspace arrays
+        Call it for example from the _snstop routine or after SNOPT has finished, where iw and rw arrays are available 
+        Currently only full memory Hessian mode is implemented, do not use this for limited-memory case.
+        The FM Hessian in SNOPT is stored with its Cholesky factor
+        which has been flattened to 1D
+        """
+        lvlHes    = iw[72-1] # 0,1,2 => LM, FM, Exact Hessian
+        if lvlHes != 1:
+            print('pyOptSparse Error! Limited-memory Hessian not supported for history file!')
+            return None
+        lU   = iw[391-1]-1       # U(lenU), BFGS Hessian H = U'U
+        lenU = iw[392-1]
+        Uvec = rw[lU:lU+lenU]
+        nnH = iw[24-1]
+        Umat = numpy.zeros((nnH,nnH))
+        Umat[numpy.triu_indices(nnH)] = Uvec
+        H = numpy.matmul(Umat.T,Umat)
+        return H
+
+    # mham-neil: add 
+    def _getPenaltyParam(self,iw,rw):
+        """
+        Retrieves the full penalty parameter vector from the work arrays.
+        """
+        nnCon = iw[23-1]
+        lxPen = iw[304-1]-1
+        xPen = rw[lxPen:lxPen+nnCon]
+        return xPen
+
+    # mham-neil: add 
+    # def _snstop(self,ktcond,mjrprtlvl,minimize,n,nncon,nnobj,ns,itn,nmajor,nminor,nswap,condzhz,
+    #     iobj,scaleobj,objadd,fobj,fmerit,penparm,step,primalinf,dualinf,maxvi,maxvirel,hs,
+    #             locj,indj,jcol,scales,bl,bu,fx,fcon,gcon,gobj,ycon,pi,rc,rg,x,cu,iu,ru,cw,iw,rw):
+    # 
+    # mham-note: no! make it compatible with the SNOPT v7.2-10 instead
+    # - remove inferred arguments (e.g., lengths)
+    # - rename / copy some stuff to match Neil's work
+    def _snstop(self,info,htype,ktcond,mjrprt,minimz  ,     n   ,       nncon       ,nnobj,ns,itn,nmajor,nminor,nswap,   condzhz   ,iobj,sclobj,objadd,   fmerit   ,pennrm,step,    primalinf    ,   dualinf   ,vimax,virel,hs   ,      locj,indj,jcol,       ascale,bl,bu,fcon,gcon,gobj,ycon,pi,rc,rg,x,cu,      iu,      ru,      cw,      iw,      rw      ):    
+        mjrprtlvl = mjrprt
+        minimize = minimz
+        scaleobj = sclobj
+        fobj = fmerit
+        penparm = pennrm
+        maxvi = vimax
+        maxvirel = virel
+        scales = ascale
+        """
+        This routine is called every major iteration in SNOPT, after solving QP but before line search
+        Currently we use it just to determine the correct major iteration counting,
+        and save some parameters in history if needed
+        returning with iabort != 0 will terminate SNOPT immediately
+        """
+        iterDict = {
+            'isMajor' : True,
+            'nMajor' : nmajor,
+            'nMinor' : nminor,
+        }
+        for saveVar in self.getOption('Save major iteration variables'):
+            if saveVar == 'merit':
+                iterDict[saveVar] = fmerit
+            elif saveVar == 'feasibility':
+                iterDict[saveVar] = primalinf
+            elif saveVar == 'optimality':
+                iterDict[saveVar] = dualinf
+            elif saveVar == 'penalty':
+                penParam = self._getPenaltyParam(iw,rw)
+                iterDict[saveVar] = penParam
+            elif saveVar == 'Hessian':
+                H = self._getHessian(iw,rw)
+                iterDict[saveVar] = H
+            elif saveVar == 'step':
+                iterDict[saveVar] = step
+            elif saveVar == 'condZHZ':
+                iterDict[saveVar] = condzhz
+            elif saveVar == 'slack':
+                iterDict[saveVar] = x[n:]
+            elif saveVar == 'lambda':
+                iterDict[saveVar] = pi
+        if self.storeHistory:
+            currX = x[:n] # only the first n component is x, the rest are the slacks
+            if nmajor == 0:
+                callCounter = 0
+            else:
+                xScaled = self.optProb.invXScale * currX + self.optProb.xOffset
+                callCounter = self.hist.getCallCounter(xScaled)
+            if callCounter is not None:
+                self.hist.write(callCounter, iterDict)
+        iabort = 0
+        return iabort
 
     def _set_snopt_options(self, iPrint, iSumm, cw, iw, rw):
         """

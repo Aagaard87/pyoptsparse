@@ -264,10 +264,17 @@ def convertToCSR(mat):
     newMat : dict
         A coo representation of the same matrix
     """
+    # mham: original lines
+    # if 'csr' in mat:
+    #     return mat
 
-    if 'csr' in mat:
-        return mat
-
+    # mham: new lines, that supress warnings *only* at this specific site
+    with warnings.catch_warnings():
+        warnings.simplefilter(action='ignore', category=FutureWarning)
+        if 'csr' in mat:   #returns False, warning is suppressed    
+            return mat
+    
+    
     mat = convertToCOO(mat)
     n = mat['shape'][0]
     m = mat['shape'][1]

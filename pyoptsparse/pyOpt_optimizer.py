@@ -219,7 +219,8 @@ class Optimizer(object):
 
                 # Validated x-point point to use:
                 xScaled = x*self.optProb.invXScale + self.optProb.xOffset
-                if numpy.linalg.norm(xScaled - xuser) < eps:
+                #if numpy.linalg.norm(xScaled - xuser) < eps:
+                if numpy.isclose(xScaled,xuser,rtol=eps,atol=eps).all():
 
                     # However, we may need a sens that *isn't* in the
                     # the dictionary:
@@ -239,6 +240,7 @@ class Optimizer(object):
                     if validPoint:
                         if self.storeHistory:
                             # Just dump the (exact) dictionary back out:
+                            data["isMajor"] = False # mham-neil: backward compatible change 
                             self.hist.write(self.callCounter, data)
 
                         fail = data['fail']
@@ -324,7 +326,9 @@ class Optimizer(object):
         tmpObjCalls = self.userObjCalls
         tmpSensCalls = self.userSensCalls
         if 'fobj' in evaluate:
-            if numpy.linalg.norm(x-self.cache['x']) > eps:
+            #if numpy.linalg.norm(x-self.cache['x']) > eps:
+            if not numpy.isclose(x,self.cache['x'],atol=eps,rtol=eps).all():
+
                 timeA = time.time()
                 args = self.optProb.objFun(xuser)
                 if isinstance(args, tuple):
@@ -365,7 +369,9 @@ class Optimizer(object):
             hist['funcs'] = self.cache['funcs']
 
         if 'fcon' in evaluate:
-            if numpy.linalg.norm(x-self.cache['x']) > eps:
+            #if numpy.linalg.norm(x-self.cache['x']) > eps:
+            if not numpy.isclose(x,self.cache['x'],atol=eps,rtol=eps).all():
+
                 timeA = time.time()
 
                 args = self.optProb.objFun(xuser)
@@ -457,7 +463,9 @@ class Optimizer(object):
                 hist['funcsSens'] = self.cache['funcsSens']
 
         if 'gcon' in evaluate:
-            if numpy.linalg.norm(x-self.cache['x']) > eps:
+            #if numpy.linalg.norm(x-self.cache['x']) > eps:
+            if not numpy.isclose(x,self.cache['x'],atol=eps,rtol=eps).all():
+
                 # Previous evaluated point is *different* than the
                 # point requested for the derivative. Recursively call
                 # the routine with ['fobj', and 'fcon']
@@ -509,6 +517,13 @@ class Optimizer(object):
 
         # Put the fail flag in the history:
         hist['fail'] = masterFail
+
+        # mham-neil: we set it to False by default. Then we know SNOPT changed it
+        # Save information about major iteration counting (only matters for SNOPT).
+        if self.name == "SNOPT":
+            hist["isMajor"] = False  # this will be updated in _snstop if it is major
+        else:
+            hist["isMajor"] = True  # for other optimizers we assume everything's major
 
         # Save information about major iteration counting (only matters for SNOPT).
         hist['iu0'] = self.iu0
